@@ -1,17 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Moon, Sun, Award, Code, Lightbulb, Users, Mail, Phone, MapPin, Github, Linkedin, Twitter, ChevronRight, Star, Trophy, BookOpen, Zap, Target, X } from 'lucide-react';
+import { Laptop , Moon, Sun, Award, Code, Lightbulb, Users, Mail, Phone, MapPin, Github, Linkedin, Twitter, ChevronRight, Star, Trophy, BookOpen, Zap, Target, X } from 'lucide-react';
 
 export default function PremiumStudentPortfolio() {
   const [isDark, setIsDark] = useState(true);
   const [showPopup, setShowPopup] = useState(true);
-  const [showReviewPopup, setShowReviewPopup] = useState(false);
-  const [reviews, setReviews] = useState([]);
-  const [reviewForm, setReviewForm] = useState({
-    name: '',
-    rating: '',
-    comment: '',
-    socialLink: ''
-  });
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -19,117 +11,6 @@ export default function PremiumStudentPortfolio() {
     }, 5000);
     return () => clearTimeout(timer);
   }, []);
-
-  useEffect(() => {
-    loadReviews();
-  }, []);
-
-  const loadReviews = async () => {
-    try {
-      const result = await window.storage.list('review:');
-      if (result && result.keys) {
-        const reviewPromises = result.keys.map(async (key) => {
-          const data = await window.storage.get(key);
-          return data ? JSON.parse(data.value) : null;
-        });
-        const loadedReviews = (await Promise.all(reviewPromises)).filter(r => r !== null);
-        setReviews(loadedReviews.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)));
-      }
-    } catch (error) {
-      console.log('No reviews yet');
-    }
-  };
-
-  const handleReviewSubmit = async () => {
-    if (!reviewForm.name || !reviewForm.rating) {
-      alert('Please fill in all required fields (Name and Rating)');
-      return;
-    }
-
-    const rating = parseInt(reviewForm.rating);
-    if (rating < 1 || rating > 10) {
-      alert('Rating must be between 1 and 10');
-      return;
-    }
-
-    const newReview = {
-      id: Date.now().toString(),
-      name: reviewForm.name,
-      rating: rating,
-      comment: reviewForm.comment,
-      socialLink: reviewForm.socialLink,
-      timestamp: new Date().toISOString(),
-      hidden: false,
-      replies: []
-    };
-
-    try {
-      await window.storage.set(`review:${newReview.id}`, JSON.stringify(newReview));
-      setReviews([newReview, ...reviews]);
-      setReviewForm({ name: '', rating: '', comment: '', socialLink: '' });
-      setShowReviewPopup(false);
-      alert('Thank you for your review!');
-    } catch (error) {
-      alert('Failed to submit review. Please try again.');
-    }
-  };
-
-  const deleteReview = async (reviewId) => {
-    if (window.confirm('Are you sure you want to delete this review?')) {
-      try {
-        await window.storage.delete(`review:${reviewId}`);
-        setReviews(reviews.filter(r => r.id !== reviewId));
-      } catch (error) {
-        alert('Failed to delete review');
-      }
-    }
-  };
-
-  const toggleHideReview = async (reviewId) => {
-    const review = reviews.find(r => r.id === reviewId);
-    if (review) {
-      const updatedReview = { ...review, hidden: !review.hidden };
-      try {
-        await window.storage.set(`review:${reviewId}`, JSON.stringify(updatedReview));
-        setReviews(reviews.map(r => r.id === reviewId ? updatedReview : r));
-      } catch (error) {
-        alert('Failed to update review');
-      }
-    }
-  };
-
-  const addReply = async (reviewId) => {
-    const replyText = prompt('Enter your reply:');
-    if (replyText) {
-      const review = reviews.find(r => r.id === reviewId);
-      if (review) {
-        const updatedReview = {
-          ...review,
-          replies: [...review.replies, {
-            text: replyText,
-            timestamp: new Date().toISOString()
-          }]
-        };
-        try {
-          await window.storage.set(`review:${reviewId}`, JSON.stringify(updatedReview));
-          setReviews(reviews.map(r => r.id === reviewId ? updatedReview : r));
-        } catch (error) {
-          alert('Failed to add reply');
-        }
-      }
-    }
-  };
-
-  const formatDate = (timestamp) => {
-    const date = new Date(timestamp);
-    return date.toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
 
   const scrollTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -190,89 +71,11 @@ export default function PremiumStudentPortfolio() {
                 Welcome to My Portfolio
               </h3>
               <p className={`text-lg mb-6 text-center ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
-                Designed with passion and precision by Divyanshu Tiwari and executed by Claude.
+                Designed with passion and precision by Ahsan Noor
               </p>
               <button onClick={() => setShowPopup(false)} className="w-full px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold rounded-full hover:scale-105 transition-transform duration-300 shadow-lg">
-                Explore my creation 
+                Explore Portfolio
               </button>
-            </div>
-          </div>
-        )}
-
-        {/* Review Popup */}
-        {showReviewPopup && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur p-4">
-            <div className={`max-w-lg w-full mx-4 p-8 rounded-3xl shadow-2xl relative ${isDark ? 'bg-slate-900' : 'bg-white'}`}>
-              <button onClick={() => setShowReviewPopup(false)} className={`absolute top-4 right-4 p-2 rounded-full transition-colors ${isDark ? 'hover:bg-slate-800' : 'hover:bg-slate-100'}`}>
-                <X className="w-5 h-5" />
-              </button>
-              <h3 className="text-2xl font-bold mb-6 text-center">Leave a Review</h3>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                    Name (Please use real name) <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={reviewForm.name}
-                    onChange={(e) => setReviewForm({...reviewForm, name: e.target.value})}
-                    className={`w-full px-4 py-3 rounded-xl border-2 focus:outline-none focus:border-orange-500 transition-colors ${isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300 text-slate-900'}`}
-                    placeholder="Your full name"
-                  />
-                </div>
-
-                <div>
-                  <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                    Rate the site overall (1-10) <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="10"
-                    value={reviewForm.rating}
-                    onChange={(e) => setReviewForm({...reviewForm, rating: e.target.value})}
-                    className={`w-full px-4 py-3 rounded-xl border-2 focus:outline-none focus:border-orange-500 transition-colors ${isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300 text-slate-900'}`}
-                    placeholder="Rate from 1 to 10"
-                  />
-                  <p className={`text-xs mt-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                    Consider design, usability, and overall experience
-                  </p>
-                </div>
-
-                <div>
-                  <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                    Any comments or thoughts (optional)
-                  </label>
-                  <textarea
-                    value={reviewForm.comment}
-                    onChange={(e) => setReviewForm({...reviewForm, comment: e.target.value})}
-                    className={`w-full px-4 py-3 rounded-xl border-2 focus:outline-none focus:border-orange-500 transition-colors resize-none ${isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300 text-slate-900'}`}
-                    rows="4"
-                    placeholder="Share your thoughts about the website..."
-                  />
-                </div>
-
-                <div>
-                  <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                    Social Media Link (LinkedIn, X, etc.) (optional)
-                  </label>
-                  <input
-                    type="url"
-                    value={reviewForm.socialLink}
-                    onChange={(e) => setReviewForm({...reviewForm, socialLink: e.target.value})}
-                    className={`w-full px-4 py-3 rounded-xl border-2 focus:outline-none focus:border-orange-500 transition-colors ${isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300 text-slate-900'}`}
-                    placeholder="https://linkedin.com/in/yourprofile"
-                  />
-                </div>
-
-                <button
-                  onClick={handleReviewSubmit}
-                  className="w-full px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold rounded-full hover:scale-105 transition-transform duration-300 shadow-lg"
-                >
-                  Submit Review
-                </button>
-              </div>
             </div>
           </div>
         )}
@@ -281,7 +84,7 @@ export default function PremiumStudentPortfolio() {
         <nav className={`sticky top-0 z-40 backdrop-blur-xl border-b transition-colors ${isDark ? 'bg-slate-950/80 border-slate-800' : 'bg-white/80 border-slate-200'}`}>
           <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
             <div className="text-2xl font-bold bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text">
-              DT
+              AN
             </div>
             <div className="hidden md:flex items-center space-x-8 font-inter font-semibold">
               <a href="#home" onClick={(e) => { e.preventDefault(); scrollTo('home'); }} className={`transition-colors ${isDark ? 'text-slate-300 hover:text-white' : 'text-slate-600 hover:text-slate-900'}`}>Home</a>
@@ -311,11 +114,11 @@ export default function PremiumStudentPortfolio() {
             </div>
             
             <h1 className="text-6xl md:text-7xl font-bold mb-6 leading-tight font-playfair">
-              Hi, I'm <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 bg-clip-text">Divyanshu Tiwari</span>
+              Hi, I'm <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 bg-clip-text">Ahsan Noor</span>
             </h1>
             
             <p className={`text-xl md:text-2xl mb-12 max-w-3xl mx-auto font-cormorant ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
-              A passionate student on a journey to master web development, blending creative writing excellence with cutting-edge technical skills and AI-powered innovation.
+              A passionate student on a journey to master Python, explore AI/ML, and become an entrepreneur, while gaining real-world experience along the way.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
@@ -329,9 +132,9 @@ export default function PremiumStudentPortfolio() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
               {[
-                { icon: Award, value: '10+', label: 'Certifications' },
+                { icon: Award, value: '12+', label: 'Certifications' },
                 { icon: BookOpen, value: '200+', label: 'Learning Hours' },
-                { icon: Trophy, value: '3+', label: 'Competition Wins' }
+                { icon: Trophy, value: '2+', label: 'Competition Wins' }
               ].map((stat, index) => (
                 <div key={index} className={`p-8 rounded-3xl backdrop-blur-xl border hover:-translate-y-2 transition-all duration-500 shadow-xl ${isDark ? 'bg-slate-900/50 border-slate-800' : 'bg-white/50 border-slate-200'}`}>
                   <stat.icon className="w-8 h-8 mx-auto mb-3 text-orange-500" />
@@ -351,10 +154,9 @@ export default function PremiumStudentPortfolio() {
         <section className={`py-12 border-t border-b ${isDark ? 'border-slate-800 bg-slate-900/30' : 'border-slate-200 bg-white/30'}`}>
           <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { icon: Award, label: 'Award Winner', desc: 'First Prize Essay' },
-              { icon: Code, label: 'Code.org Certified', desc: 'Hour of Code' },
-              { icon: Lightbulb, label: 'NITI Aayog', desc: 'ATL Participant' },
-              { icon: Users, label: 'Team Leader', desc: 'Proven Skills' }
+              { icon: Award, label: 'Award Winner', desc: 'Top 10 in Quiz' },
+              { icon: Code, label: 'Scaler.com Certified', desc: 'S.O.L.I.D Principles' },
+              { icon: Laptop, label: 'Tech Head', desc: 'Vintara International' }
             ].map((item, index) => (
               <div key={index} className="text-center">
                 <item.icon className="w-10 h-10 mx-auto mb-3 text-orange-500" />
@@ -386,7 +188,7 @@ export default function PremiumStudentPortfolio() {
                   icon: Users,
                   title: 'Leadership & Management',
                   gradient: 'from-amber-500 to-orange-500',
-                  skills: ['Team Leadership', 'Project Coordination', 'Creative Problem Solving', 'Strategic Planning', 'Finance Management', 'Team Management' ]
+                  skills: ['Team Leadership', 'Project Coordination', 'Creative Problem Solving', 'Strategic Planning', 'Finance Management']
                 },
                 {
                   icon: BookOpen,
@@ -426,9 +228,9 @@ export default function PremiumStudentPortfolio() {
               <h3 className="text-3xl font-bold mb-8 text-center">Current Learning Journey</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {[
-                  { name: 'HTML & CSS', icon: Code, percent: 5 },
+                  { name: 'HTML & CSS', icon: Code, percent: 10 },
                   { name: 'JavaScript', icon: Zap, percent: 0 },
-                  { name: 'Python', icon: Target, percent: 10 },
+                  { name: 'Python', icon: Target, percent: 20 },
                   { name: 'AI-Assisted Coding', icon: Lightbulb, percent: 80 }
                 ].map((skill, index) => (
                   <div key={index} className="space-y-3">
@@ -469,7 +271,7 @@ export default function PremiumStudentPortfolio() {
                 {
                   title: 'First Prize - Essay Writing',
                   org: 'Amity University, Patna',
-                  desc: 'Won first place in essay writing competition on the topic "One Nation, One Election," demonstrating exceptional creative writing and analytical skills.',
+                  desc: 'Won first place in the prestigious essay writing competition on the topic "One Nation, One Election," demonstrating exceptional creative writing and analytical skills.',
                   icon: Trophy,
                   gradient: 'from-amber-500 to-orange-500',
                   year: '2024'
@@ -532,10 +334,10 @@ export default function PremiumStudentPortfolio() {
                 </h3>
                 <div className="space-y-4">
                   {[
-                    { name: 'HTML & CSS', level: 'Beginner' },
-                    { name: 'JavaScript', level: 'Learning' },
-                    { name: 'Python', level: 'Learning' },
-                    { name: 'AI-Assisted Coding', level: 'Advanced' },
+                    { name: 'HTML & CSS', level: 'Advanced' },
+                    { name: 'JavaScript', level: 'Beginner' },
+                    { name: 'Python', level: 'Beginner' },
+                    { name: 'prompt-engeniering', level: 'Intermediate' },
                     { name: 'Vibe Coding', level: 'Proficient' }
                   ].map((skill, index) => (
                     <div key={index} className="flex justify-between items-center">
@@ -596,9 +398,9 @@ export default function PremiumStudentPortfolio() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
               {[
-                { icon: Mail, label: 'Email', value: 'divyanshutiwari@duck.com', link: 'mailto:divyanshutiwari@duck.com' },
-                { icon: Phone, label: 'Phone', value: '+91 9955888527', link: 'tel:+919955888527' },
-                { icon: MapPin, label: 'Location', value: 'Motihari, Bihar, India', link: null }
+                { icon: Mail, label: 'Email', value: 'ahsannoor296@gmail.com', link: 'mailto:ahsannoor296@gmail.com' },
+                { icon: Phone, label: 'Phone', value: '+91 8757279938', link: 'tel:+918757279938' },
+                { icon: MapPin, label: 'Location', value: 'Jamshedpur, Jharkhand, India', link: null }
               ].map((contact, index) => (
                 <div key={index} className="p-8 rounded-3xl bg-white/10 backdrop-blur-xl border border-white/20 hover:-translate-y-2 transition-all duration-300">
                   <contact.icon className="w-8 h-8 text-white mb-4" />
@@ -614,9 +416,9 @@ export default function PremiumStudentPortfolio() {
 
             <div className="flex justify-center gap-6">
               {[
-                { icon: Github, link: 'https://github.com/divyanshu-tiwari001' },
-                { icon: Linkedin, link: 'https://www.linkedin.com/in/its-tiwari/' },
-                { icon: Twitter, link: 'https://x.com/Divyanshut011' }
+                { icon: Github, link: 'https://github.com/Ahsan786123' },
+                { icon: Linkedin, link: 'https://www.linkedin.com/in/ahsan-noor-6aa322280/' },
+                { icon: Twitter, link: 'https://x.com/Ahzar1203' }
               ].map((social, index) => (
                 <a key={index} href={social.link} target="_blank" rel="noopener noreferrer" className="group p-4 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white hover:text-orange-600 transition-all duration-300 hover:scale-110">
                   <social.icon className="w-6 h-6 text-white group-hover:text-orange-600" />
@@ -630,114 +432,16 @@ export default function PremiumStudentPortfolio() {
         <footer className={`py-12 px-6 border-t ${isDark ? 'border-slate-800 bg-slate-900/50' : 'border-slate-200 bg-white/50'}`}>
           <div className="max-w-7xl mx-auto text-center">
             <div className="text-2xl font-bold mb-4 bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text">
-              Divyanshu Tiwari
+              Ahsan Noor
             </div>
             <p className={`mb-6 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-              Emerging Developer | Creative Leader | Lifelong Learner
+              Tech Head @Vintara | Developer | Intern @SST |Lifelong Learner 
             </p>
             <p className={`text-sm ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>
-              © 2025 Designed & Built by <span className="bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text font-bold">Divyanshu Tiwari</span>
+              © 2025 Designed & Built by <span className="bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text font-bold">Ahsan Noor</span>
             </p>
           </div>
         </footer>
-
-        {/* Reviews Section */}
-        <section id="reviews" className="py-24 px-6">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <div className="inline-block px-6 py-2 mb-4 rounded-full bg-gradient-to-r from-amber-600/20 to-orange-600/20 border border-amber-500/30">
-                <span className="text-sm font-bold uppercase tracking-wider bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text font-montserrat">
-                  Visitor Feedback
-                </span>
-              </div>
-              <h2 className="text-5xl font-bold mb-6 font-playfair">What People Say</h2>
-              <p className={`text-xl max-w-2xl mx-auto mb-8 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
-                Your feedback helps me improve and grow. Share your experience!
-              </p>
-              <button
-                onClick={() => setShowReviewPopup(true)}
-                className="px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-600 text-white text-lg font-bold rounded-full hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-orange-500/50"
-              >
-                Leave a Review
-              </button>
-            </div>
-
-            {reviews.length === 0 ? (
-              <div className={`text-center py-12 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                <p className="text-xl">No reviews yet. Be the first to leave a review!</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {reviews.filter(review => !review.hidden).map((review) => (
-                  <div key={review.id} className={`p-8 rounded-3xl backdrop-blur-xl border transition-all duration-300 hover:shadow-xl ${isDark ? 'bg-slate-900/50 border-slate-800' : 'bg-white/50 border-slate-200'}`}>
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h4 className="text-xl font-bold mb-1">
-                          {review.socialLink ? (
-                            <a href={review.socialLink} target="_blank" rel="noopener noreferrer" className="hover:text-orange-500 transition-colors">
-                              {review.name}
-                            </a>
-                          ) : (
-                            review.name
-                          )}
-                        </h4>
-                        <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                          {formatDate(review.timestamp)}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold">
-                        <Star className="w-4 h-4 fill-white" />
-                        {review.rating}/10
-                      </div>
-                    </div>
-
-                    {review.comment && (
-                      <p className={`mb-4 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                        {review.comment}
-                      </p>
-                    )}
-
-                    {review.replies && review.replies.length > 0 && (
-                      <div className={`mt-4 pt-4 border-t space-y-3 ${isDark ? 'border-slate-700' : 'border-slate-300'}`}>
-                        {review.replies.map((reply, idx) => (
-                          <div key={idx} className={`pl-4 border-l-2 border-orange-500 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                            <p className="font-semibold text-orange-500 text-sm mb-1">Divyanshu replied:</p>
-                            <p>{reply.text}</p>
-                            <p className={`text-xs mt-1 ${isDark ? 'text-slate-500' : 'text-slate-600'}`}>
-                              {formatDate(reply.timestamp)}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Admin Controls - These buttons are visible to everyone but only you should use them */}
-                    <div className="mt-4 pt-4 border-t border-slate-700/50 flex gap-2">
-                      <button
-                        onClick={() => addReply(review.id)}
-                        className={`text-xs px-3 py-1 rounded-full transition-colors ${isDark ? 'bg-slate-800 hover:bg-slate-700' : 'bg-slate-200 hover:bg-slate-300'}`}
-                      >
-                        Reply
-                      </button>
-                      <button
-                        onClick={() => toggleHideReview(review.id)}
-                        className={`text-xs px-3 py-1 rounded-full transition-colors ${isDark ? 'bg-slate-800 hover:bg-slate-700' : 'bg-slate-200 hover:bg-slate-300'}`}
-                      >
-                        {review.hidden ? 'Unhide' : 'Hide'}
-                      </button>
-                      <button
-                        onClick={() => deleteReview(review.id)}
-                        className="text-xs px-3 py-1 rounded-full bg-red-500/20 text-red-500 hover:bg-red-500/30 transition-colors"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
       </div>
     </>
   );
